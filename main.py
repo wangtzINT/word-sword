@@ -14,11 +14,11 @@ class MainPage(webapp.RequestHandler):
 
 class NewArticlePage(webapp.RequestHandler):
     def post(self):
-	pass
+        pass
 
 class WordsPage(webapp.RequestHandler):
     def get(self):
-	pass
+        pass
 
 class ArticlesPage(webapp.RequestHandler):
     def get(self):
