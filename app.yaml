@@ -1,0 +1,8 @@
+application: x2-serious-case-3
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /.*
+  script: helloworld.py
