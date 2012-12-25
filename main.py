@@ -52,6 +52,8 @@ class WordsPage(AuthenticatedPage):
     @requireLogin
     @templateFile("words.html")
     def get(self):
+        learntWords = ["word1", "word2"]
+        return {"words": learntWords}
         pass
 
 class ArticlesPage(AuthenticatedPage):
