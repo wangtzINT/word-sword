@@ -42,6 +42,10 @@ class NewArticlePage(AuthenticatedPage):
     @requireLogin
     @templateFile("new.html")
     def post(self):
+        words = self.request.get("content").split("[ \S.;,?!~|()\[\]{}'\"")
+        newWords = ["new", "worlds"]
+        oldWords = ["old", "mots"]
+        return {"oldWords": oldWords, "newWords": newWords}
         pass
 
 class WordsPage(AuthenticatedPage):
