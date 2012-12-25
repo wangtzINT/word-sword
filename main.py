@@ -25,11 +25,11 @@ class ArticlesPage(webapp.RequestHandler):
         pass
 
 application = webapp.WSGIApplication(
-                                     [('/', MainPage),
+                     [('/', MainPage),
 				      ('/new', NewArticlePage),
 				      ('/words', WordsPage),
 				      ('/articles', ArticlesPage)],
-                                     debug=True)
+                     debug=True)
 
 def main():
     run_wsgi_app(application)
