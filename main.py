@@ -41,7 +41,7 @@ class MainPage(AuthenticatedPage):
 class NewArticlePage(AuthenticatedPage):
     @requireLogin
     @templateFile("new.html")
-    def getWord(self):
+    def post(self):
         pass
 
 class WordsPage(AuthenticatedPage):
