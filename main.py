@@ -58,6 +58,10 @@ class ArticlesPage(AuthenticatedPage):
     @requireLogin
     @templateFile("articles.html")
     def get(self):
+        article1 = {"title": "Title1", "content": "Content1"}
+        article2 = {"title": "Title2", "content": "Content2"}
+        articles = [article1, article2]
+        return {"articles": articles}
         pass
 
 application = webapp.WSGIApplication(
