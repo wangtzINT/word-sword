@@ -51,8 +51,8 @@ class Profile(db.Model):
     wordlist = db.StringListProperty()
 
     @staticmethod
-    def getProfileOfUser(username):
-        userProfileKey = db.Key.from_path("Profile", username)
+    def getProfileOfUser(user):
+        userProfileKey = db.Key.from_path("Profile", user.email())
         userProfile = None
         try:
             userProfile = db.get(userProfileKey)
@@ -60,7 +60,8 @@ class Profile(db.Model):
             pass
         finally:
             if userProfile == None:
-                userProfile = Profile(name=username, wordlist=[])
+                userProfile = Profile(key_name=user.email(), 
+                                        name=user.nickname(), wordlist=[])
                 userProfile.put()
                 pass
             pass
@@ -84,12 +85,15 @@ class NewArticlePage(AuthenticatedPage):
     @templateFile("new.html")
     def post(self):
         words = self.request.get("content").split("[ \S.;,?!~|()\[\]{}'\"")
-        newWords = ["new", "worlds"]
-        oldWords = ["old", "mots"]
+        #newWords = ["new", "worlds"]
+        # oldWords = ["old", "mots"]
 
-        profile = Profile.getProfileOfUser(self.user.email())
+        profile = Profile.getProfileOfUser(self.user)
+        oldWords = profile.wordlist
         profile.wordlist = words
         profile.put()
+        newWords = profile.wordlist
+
         
         return {"oldWords": oldWords, "newWords": newWords}
         pass
@@ -98,7 +102,7 @@ class WordsPage(AuthenticatedPage):
     @requireLogin
     @templateFile("words.html")
     def get(self):
-        profile = Profile.getProfileOfUser(self.user.email())
+        profile = Profile.getProfileOfUser(self.user)
         learntWords = profile.wordlist
         return {"words": learntWords}
         pass
