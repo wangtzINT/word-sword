@@ -99,8 +99,11 @@ class NewArticlePage(AuthenticatedPage):
 
         profile.wordlist = list(newWords | set(profile.wordlist))
         profile.put()
+
+        wordlist = [dict(id=idx, name=val, meaning="unkown")
+                            for idx, val in enumerate(newWords)]
         
-        return {"oldWords": oldWords, "newWords": newWords}
+        return {"newWords": wordlist}
         pass
 
 class WordsPage(AuthenticatedPage):
