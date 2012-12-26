@@ -1,10 +1,9 @@
-<html>
-<body>
+{% extends "base.html" %}
+
+{% block sidebar %}
 Study a new article:
     <form action="/new" method="post">
       <div><textarea name="content" rows="5" cols="60"></textarea></div>
       <div><input type="submit" value="Get Start!"></div>
     </form>
-
-</body>
-</html>
+{% endblock %}
