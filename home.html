@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 
 {% block sidebar %}
-Study a new article:
     <form action="/new" method="post">
-      <div><textarea name="content" rows="5" cols="60"></textarea></div>
-      <div><input type="submit" value="Get Start!"></div>
+      <legend>Study a new article:</legend>
+      <div><textarea name="content" rows="5" cols="60" placeholder="Type 
+something…"></textarea></div>
+      <div><input type="submit" value="Get Start!" class="btn"></div>
     </form>
 {% endblock %}
