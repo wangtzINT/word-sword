@@ -1,5 +1,11 @@
 import os
+import cgi
+import datetime
+import urllib
+import wsgiref.handlers
+
 from google.appengine.ext.webapp import template
+from google.appengine.ext import db
 from google.appengine.api import users
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -13,6 +19,12 @@ def requireLogin(f):
         user = users.get_current_user()
 
         if user:
+            
+            # TODO: this maight introduce a bug:
+            # if a class has various methods which requires diff auth cond
+            # some of them may have self.user some of them not..
+            # should check when classes are inited.
+            self.user = user
             f(self, *args, **kwargs)
         else:
             self.redirect(users.create_login_url(self.request.uri))
@@ -30,7 +42,36 @@ def templateFile(filename, filepath=__file__):
         return wrapperMethod
         pass
     return wrapperParameters
+
+######################## Model ##########################
+
+class Profile(db.Model):
+    # Entity is named by property id or name 
+    name = db.StringProperty()
+    wordlist = db.StringListProperty()
+
+    @staticmethod
+    def getProfileOfUser(username):
+        userProfileKey = db.Key.from_path("Profile", username)
+        userProfile = None
+        try:
+            userProfile = db.get(userProfileKey)
+        except NotSavedError:
+            pass
+        finally:
+            if userProfile == None:
+                userProfile = Profile(name=username, wordlist=[])
+                userProfile.put()
+                pass
+            pass
+        return userProfile
         
+            
+class Article(db.Model):
+    title = db.StringProperty()
+    content = db.StringProperty(multiline=True)
+
+######################## Controller ##########################
 
 class MainPage(AuthenticatedPage):
     @requireLogin
@@ -45,6 +86,11 @@ class NewArticlePage(AuthenticatedPage):
         words = self.request.get("content").split("[ \S.;,?!~|()\[\]{}'\"")
         newWords = ["new", "worlds"]
         oldWords = ["old", "mots"]
+
+        profile = Profile.getProfileOfUser(self.user.email())
+        profile.wordlist = words
+        profile.put()
+        
         return {"oldWords": oldWords, "newWords": newWords}
         pass
 
@@ -52,7 +98,8 @@ class WordsPage(AuthenticatedPage):
     @requireLogin
     @templateFile("words.html")
     def get(self):
-        learntWords = ["word1", "word2"]
+        profile = Profile.getProfileOfUser(self.user.email())
+        learntWords = profile.wordlist
         return {"words": learntWords}
         pass
 
