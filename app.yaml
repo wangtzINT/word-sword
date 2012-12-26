@@ -6,3 +6,12 @@ api_version: 1
 handlers:
 - url: /.*
   script: main.py
+
+- url: js
+  static_dir: js
+
+- url: css
+  static_dir: css
+
+- url: img
+  static_dir: img
