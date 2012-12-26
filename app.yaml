@@ -7,11 +7,11 @@ handlers:
 - url: /.*
   script: main.py
 
-- url: js
+- url: /js
   static_dir: js
 
-- url: css
+- url: /css
   static_dir: css
 
-- url: img
+- url: /img
   static_dir: img
