@@ -22,6 +22,12 @@ def getTranslationFromQQ(self, wordlist):
     httpServ.connect()
     
     for wordElement in wordlist:
+        wordKey = db.Key.from_path("Word", wordElement["name"])
+        wordRecord = db.get(wordKey)
+        if wordRecord:
+            wordElement["meaning"] = wordRecord.translation
+            continue
+        
         # TODO: coroutine optimisation
         httpServ.request('GET', "/dict?q=" + wordElement["name"])
 
@@ -32,7 +38,12 @@ def getTranslationFromQQ(self, wordlist):
                 des = data["local"][0]["des"]
                 ds = [" ".join([value for key, value in ele.iteritems()]) 
                         for ele in des]
-                wordElement["meaning"] = ",".join(ds)
+                wordElement["meaning"] = ", ".join(ds)
+                wordRecord = Word(key_name=wordElement["name"], 
+                                    translation = wordElement["meaning"],
+                                    origine = repr(response))
+                wordRecord.put()
+                                    
             except KeyError:
                 pass
             pass
@@ -94,7 +105,11 @@ class Profile(db.Model):
                 pass
             pass
         return userProfile
-        
+
+class Word(db.Model):
+    name = db.StringListProperty()
+    translation = db.StringProperty(multiline=True)        
+    origine = db.StringProperty(multiline=True)
             
 class Article(db.Model):
     title = db.StringProperty()
@@ -121,7 +136,7 @@ class NewArticlePage(AuthenticatedPage):
         words = filter(lambda x: len(x)>1, words)
         # an article related to map performance: (str.lower bad for unicode)
         # http://stackoverflow.com/questions/1247486/python-list-comprehension-vs-map
-        words = map(lambda x: x.lower(), words)
+        words = map(lambda x: x.lower().strip(), words)
         oldWords = set(words).intersection( set(profile.wordlist) )
         newWords = set(words) - set(oldWords)
 
