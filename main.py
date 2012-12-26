@@ -38,7 +38,7 @@ def getTranslationFromQQ(self, wordlist):
                 des = data["local"][0]["des"]
                 ds = [" ".join([value for key, value in ele.iteritems()]) 
                         for ele in des]
-                wordElement["meaning"] = ", ".join(ds)
+                wordElement["meaning"] = "; ".join(ds)
                 wordRecord = Word(key_name=wordElement["name"], 
                                     translation = wordElement["meaning"],
                                     origine = repr(response))
