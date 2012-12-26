@@ -4,6 +4,8 @@ import datetime
 import urllib
 import wsgiref.handlers
 import re
+import httplib
+import json
 
 from google.appengine.ext.webapp import template
 from google.appengine.ext import db
@@ -13,6 +15,30 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 
 class AuthenticatedPage(webapp.RequestHandler):
     pass
+
+######################## Helpers ##########################
+def getTranslationFromQQ(self, wordlist):
+    httpServ = httplib.HTTPConnection("dict.qq.com", 80)
+    httpServ.connect()
+    
+    for wordElement in wordlist:
+        httpServ.request('GET', "/dict?q=" + wordElement["name"])
+
+        response = httpServ.getresponse()
+        if response.status == httplib.OK:
+            data = json.load(response)
+            try:
+                des = data["local"][0]["des"]
+                ds = [" ".join([value for key, value in ele.iteritems()]) 
+                        for ele in des]
+                wordElement["meaning"] = ",".join(ds)
+            except KeyError:
+                pass
+            pass
+        pass
+    return wordlist
+
+######################## Decorators ##########################
 
 def requireLogin(f):
     def wrapper(self, *args, **kwargs):
@@ -103,6 +129,7 @@ class NewArticlePage(AuthenticatedPage):
 
         wordlist = [dict(id=idx, name=val, meaning="unkown")
                             for idx, val in enumerate(newWords)]
+        wordlist = getTranslationFromQQ(self, wordlist)
         
         return {"newWords": wordlist, "content": content}
         pass
