@@ -88,8 +88,9 @@ class NewArticlePage(AuthenticatedPage):
         # unique, no seperator, no word of len 1 ('s after seperate)
         profile = Profile.getProfileOfUser(self.user)
 
+        content = self.request.get("content")
         # maight consider seperator in unicode plus - issue
-        words = re.split(r"[ .\"\':;,?!~|()\[\]#+=%\\/><]+", self.request.get("content"))
+        words = re.split(r"[ .\"\':;,?!~|()\[\]#+=%\\/><]+", content)
         words = filter(lambda x: len(x)>1, words)
         # an article related to map performance: (str.lower bad for unicode)
         # http://stackoverflow.com/questions/1247486/python-list-comprehension-vs-map
@@ -103,7 +104,7 @@ class NewArticlePage(AuthenticatedPage):
         wordlist = [dict(id=idx, name=val, meaning="unkown")
                             for idx, val in enumerate(newWords)]
         
-        return {"newWords": wordlist}
+        return {"newWords": wordlist, "content": content}
         pass
 
 class WordsPage(AuthenticatedPage):
