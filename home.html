@@ -2,9 +2,10 @@
 
 {% block sidebar %}
     <form action="/new" method="post">
-      <legend>Study a new article:</legend>
-      <div><textarea name="content" rows="5" cols="60" placeholder="Type 
+      <legend>Study a new article:
+            <input type="submit" value="Get Start!" class="btn pull-right">
+      </legend>
+      <div><textarea style="width: 100%; min-height: 1000px" name="content" placeholder="Type 
 something…"></textarea></div>
-      <div><input type="submit" value="Get Start!" class="btn"></div>
     </form>
 {% endblock %}
