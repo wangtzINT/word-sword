@@ -22,6 +22,7 @@ def getTranslationFromQQ(self, wordlist):
     httpServ.connect()
     
     for wordElement in wordlist:
+        # TODO: coroutine optimisation
         httpServ.request('GET', "/dict?q=" + wordElement["name"])
 
         response = httpServ.getresponse()
