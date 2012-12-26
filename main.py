@@ -3,6 +3,7 @@ import cgi
 import datetime
 import urllib
 import wsgiref.handlers
+import re
 
 from google.appengine.ext.webapp import template
 from google.appengine.ext import db
@@ -84,16 +85,20 @@ class NewArticlePage(AuthenticatedPage):
     @requireLogin
     @templateFile("new.html")
     def post(self):
-        words = self.request.get("content").split("[ \S.;,?!~|()\[\]{}'\"")
-        #newWords = ["new", "worlds"]
-        # oldWords = ["old", "mots"]
-
+        # unique, no seperator, no word of len 1 ('s after seperate)
         profile = Profile.getProfileOfUser(self.user)
-        oldWords = profile.wordlist
-        profile.wordlist = words
-        profile.put()
-        newWords = profile.wordlist
 
+        # maight consider seperator in unicode plus - issue
+        words = re.split(r"[ .\"\':;,?!~|()\[\]#+=%\\/><]+", self.request.get("content"))
+        words = filter(lambda x: len(x)>1, words)
+        # an article related to map performance: (str.lower bad for unicode)
+        # http://stackoverflow.com/questions/1247486/python-list-comprehension-vs-map
+        words = map(lambda x: x.lower(), words)
+        oldWords = set(words).intersection( set(profile.wordlist) )
+        newWords = set(words) - set(oldWords)
+
+        profile.wordlist = list(newWords | set(profile.wordlist))
+        profile.put()
         
         return {"oldWords": oldWords, "newWords": newWords}
         pass
