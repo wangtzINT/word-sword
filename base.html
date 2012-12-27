@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <title>{% block title %}Easy Read{% endblock %}</title>
-    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="/css/bootstrap.min.css" rel="stylesheet" media="screen">
 </head>
 
 <body>
@@ -11,7 +11,8 @@
     <p>An innovitative online word reciting service based on GAE python.</p>
     <p><small> Dictionary powered by StarDict and QQ. </small></p>
     <p>
-    <a href="/" class="btn btn-primary btn-large"> Get start </a>
+    <a data-load="/word/count" href="/" class="btn btn-primary btn-large
+getStart withAjaxPopover"> Get start </a>
     </p>
     </div>
 
@@ -30,8 +31,9 @@
     </div>
 
     <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    
+    <script src="/js/bootstrap.min.js"></script>
+
+    <script src="/js/getStart.js"></script>
     {% block javascript %}{% endblock %}
 
 </body>
