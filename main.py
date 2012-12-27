@@ -244,7 +244,7 @@ class AddWordAction(AuthenticatedPage):
     def post(self):
         uselessWords = seperator.getWordList(self.request.get("term"))
         profile = Profile.getProfileOfUser(self.user)
-        learntWords = set(profile.wordlist) + set(uselessWords)
+        learntWords = set(profile.wordlist).union( set(uselessWords) )
         profile.wordlist = list(learntWords)
         profile.put()
         response = {"status": "successed"}
