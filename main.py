@@ -21,6 +21,17 @@ class AuthenticatedPage(webapp.RequestHandler):
     pass
 
 ######################## Helpers ##########################
+class Seperator(object):
+    def getWordList(self, content):
+        # maight consider seperator in unicode plus - issue
+        words = re.split(r"[ .\"\'\n\t:;,?!~|()\[\]#+=%\\/><0-9]+", content)
+        # avoid empty string etc
+        words = filter(lambda x: len(x)>1, words)
+        # an article related to map performance: (str.lower bad for unicode)
+        # http://stackoverflow.com/questions/1247486/python-list-comprehension-vs-map
+        words = map(lambda x: x.lower().strip(), words)
+        return words
+    
 class Translator(object):
     def __init__(self):
         # star dict part
@@ -192,12 +203,8 @@ class NewArticlePage(AuthenticatedPage):
         profile = Profile.getProfileOfUser(self.user)
 
         content = self.request.get("content")
-        # maight consider seperator in unicode plus - issue
-        words = re.split(r"[ .\"\'\n\t:;,?!~|()\[\]#+=%\\/><0-9]+", content)
-        words = filter(lambda x: len(x)>1, words)
-        # an article related to map performance: (str.lower bad for unicode)
-        # http://stackoverflow.com/questions/1247486/python-list-comprehension-vs-map
-        words = map(lambda x: x.lower().strip(), words)
+        words = seperator.getWordList(content)
+
         oldWords = set(words).intersection( set(profile.wordlist) )
         newWords = set(words) - set(oldWords)
 
@@ -220,6 +227,18 @@ class WordsPage(AuthenticatedPage):
         return {"words": learntWords}
         pass
 
+class RemoveWordAction(AuthenticatedPage):
+    @requireLogin
+    def get(self):
+        uselessWords = seperator.getWordList(self.request.get("term"))
+        profile = Profile.getProfileOfUser(self.user)
+        learntWords = set(profile.wordlist) - set(uselessWords)
+        profile.wordlist = list(learntWords)
+        profile.put()
+        response = {"status": "successed"}
+        self.response.out.write(json.dumps(response))
+        pass
+
 class ArticlesPage(AuthenticatedPage):
     @requireLogin
     @templateFile("articles.html")
@@ -234,9 +253,11 @@ application = webapp.WSGIApplication(
                      [('/', MainPage),
 				      ('/new', NewArticlePage),
 				      ('/words', WordsPage),
-				      ('/articles', ArticlesPage)],
+				      ('/articles', ArticlesPage),
+                      ('/remove/word', RemoveWordAction)],
                      debug=True)
 translator = Translator()
+seperator = Seperator()
 
 def main():
     run_wsgi_app(application)
