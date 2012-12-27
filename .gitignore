@@ -1,5 +1,8 @@
 *.py[cod]
 
+# stardict dictionaries
+dict/*
+
 # C extensions
 *.so
 
