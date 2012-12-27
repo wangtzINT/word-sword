@@ -1,3 +1,4 @@
+# vim: set fileencoding=utf-8 :
 import os
 import cgi
 import datetime
@@ -6,7 +7,9 @@ import wsgiref.handlers
 import re
 import httplib
 import json
+import logging
 from extension.stardict import IfoFileReader, IdxFileReader, DictFileReader
+from xml.dom import minidom
 
 from google.appengine.ext.webapp import template
 from google.appengine.ext import db
@@ -18,38 +21,89 @@ class AuthenticatedPage(webapp.RequestHandler):
     pass
 
 ######################## Helpers ##########################
-def getTranslationFromQQ(self, wordlist):
-    httpServ = httplib.HTTPConnection("dict.qq.com", 80)
-    httpServ.connect()
+class Translator(object):
+    def __init__(self):
+        # star dict part
+        self.ifo_file = "dict/powerword2007_pwqec.ifo"
+        self.idx_file = "dict/powerword2007_pwqec.idx"
+        self.dict_file = "dict/powerword2007_pwqec.dict.dz"
+        self.ifo_reader = IfoFileReader(self.ifo_file)
+        self.idx_reader = IdxFileReader(self.idx_file)
+        self.dict_reader = DictFileReader(self.dict_file, 
+                                            self.ifo_reader, 
+                                            self.idx_reader, 
+                                            True)
+        # qq translation
+        self.httpServ = httplib.HTTPConnection("dict.qq.com", 80)
+        self.httpServ.connect()
+        pass
     
-    for wordElement in wordlist:
-        wordKey = db.Key.from_path("Word", wordElement["name"])
+    def run(self, wordlist):
+        for wordElement in wordlist:
+            wordElement["meaning"] = self.getMeaning(wordElement["name"])
+        return wordlist
+    
+    def getMeaning(self, wordName):
+        meaning = self.getTranslationFromDB(wordName)
+        if meaning: return meaning
+        meaning = self.getTranslationFromStarDict(wordName)
+        if meaning: return meaning
+        meaning = self.getTranslationFromQQ(wordName)
+        if meaning: return meaning
+        meaning = "unknown"
+        self.storeTranslationToDB(wordName, meaning, None)
+        return meaning
+    
+    def storeTranslationToDB(self, wordName, meaning, response):
+        wordRecord = Word(key_name=wordName, 
+                            translation = meaning,
+                            origine = repr(response))
+        wordRecord.put()
+    
+    def getTranslationFromDB(self, wordName):
+        wordKey = db.Key.from_path("Word", wordName)
         wordRecord = db.get(wordKey)
         if wordRecord:
-            wordElement["meaning"] = wordRecord.translation
-            continue
-        
-        # TODO: coroutine optimisation
-        httpServ.request('GET', "/dict?q=" + wordElement["name"])
+            return wordRecord.translation
+        else:
+            return None
 
-        response = httpServ.getresponse()
+    def getTranslationFromStarDict(self, wordName):
+        raw = self.dict_reader.get_dict_by_word(wordName)
+        if raw:
+            xmldoc = minidom.parseString(raw[0]["k"])
+            categories = xmldoc.getElementsByTagName(u"单词词性")
+            meanings = xmldoc.getElementsByTagName(u"解释项")
+            commonLen = min(len(categories), len(meanings))
+            logging.error("commonLen = %d", commonLen)
+            translation = "; ".join([
+                        " ".join([categories[i].firstChild.wholeText,
+                                    meanings[i].firstChild.wholeText])
+                        for i in range(commonLen)
+                        ])
+        else:
+            translation = None
+        return translation
+        pass
+
+    def getTranslationFromQQ(self, wordName):
+        # TODO: coroutine optimisation
+        self.httpServ.request('GET', "/dict?q=" + wordName)
+        response = self.httpServ.getresponse()
         if response.status == httplib.OK:
             data = json.load(response)
             try:
                 des = data["local"][0]["des"]
                 ds = [" ".join([value for key, value in ele.iteritems()]) 
                         for ele in des]
-                wordElement["meaning"] = "; ".join(ds)
-                wordRecord = Word(key_name=wordElement["name"], 
-                                    translation = wordElement["meaning"],
-                                    origine = repr(response))
-                wordRecord.put()
-                                    
+                meaning = "; ".join(ds)
+                self.storeTranslationToDB(wordName, meaning, response)
+                return meaning
             except KeyError:
                 pass
             pass
+        return None
         pass
-    return wordlist
 
 ######################## Decorators ##########################
 
@@ -146,7 +200,7 @@ class NewArticlePage(AuthenticatedPage):
 
         wordlist = [dict(id=idx, name=val, meaning="unkown")
                             for idx, val in enumerate(newWords)]
-        wordlist = getTranslationFromQQ(self, wordlist)
+        wordlist = translator.run(wordlist) 
         
         return {"newWords": wordlist, "content": content}
         pass
@@ -176,6 +230,7 @@ application = webapp.WSGIApplication(
 				      ('/words', WordsPage),
 				      ('/articles', ArticlesPage)],
                      debug=True)
+translator = Translator()
 
 def main():
     run_wsgi_app(application)
