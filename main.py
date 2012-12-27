@@ -29,6 +29,10 @@ class Translator(object):
         self.dict_file = "dict/powerword2007_pwqec.dict.dz"
         self.ifo_reader = IfoFileReader(self.ifo_file)
         self.idx_reader = IdxFileReader(self.idx_file)
+        # TODO: This dict is too big to be entirely loaded (about 110M)
+        # which force me to use F2 frontend instance
+        # need to find a way to reduce its usage
+        # !AND! speed up the lauch time!
         self.dict_reader = DictFileReader(self.dict_file, 
                                             self.ifo_reader, 
                                             self.idx_reader, 
