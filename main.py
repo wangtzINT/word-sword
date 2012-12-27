@@ -82,7 +82,6 @@ class Translator(object):
             categories = xmldoc.getElementsByTagName(u"单词词性")
             meanings = xmldoc.getElementsByTagName(u"解释项")
             commonLen = min(len(categories), len(meanings))
-            logging.error("commonLen = %d", commonLen)
             translation = "; ".join([
                         " ".join([categories[i].firstChild.wholeText,
                                     meanings[i].firstChild.wholeText])
