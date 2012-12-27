@@ -251,6 +251,15 @@ class AddWordAction(AuthenticatedPage):
         self.response.out.write(json.dumps(response))
         pass
 
+class CountWordAction(AuthenticatedPage):
+    @requireLogin
+    def post(self):
+        profile = Profile.getProfileOfUser(self.user)
+        count = len(profile.wordlist)
+        response = {"count": repr(count)}
+        self.response.out.write(json.dumps(response))
+        pass
+        
 class ArticlesPage(AuthenticatedPage):
     @requireLogin
     @templateFile("articles.html")
@@ -263,11 +272,12 @@ class ArticlesPage(AuthenticatedPage):
 
 application = webapp.WSGIApplication(
                      [('/', MainPage),
-				      ('/new', NewArticlePage),
-				      ('/words', WordsPage),
-				      ('/articles', ArticlesPage),
-                      ('/remove/word', RemoveWordAction),
-                      ('/add/word', AddWordAction)],
+				      ('/article/new', NewArticlePage),
+				      ('/article/list', ArticlesPage),
+                      ('/word/add', AddWordAction),
+                      ('/word/remove', RemoveWordAction),
+				      ('/word/list', WordsPage),
+                      ('/word/count', CountWordAction)],
                      debug=True)
 translator = Translator()
 seperator = Seperator()
