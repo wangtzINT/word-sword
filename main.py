@@ -41,7 +41,7 @@ class Translator(object):
                                             self.idx_reader, 
                                             True)
         # qq translation
-        self.httpServ = httplib.HTTPConnection("dict.qq.com", 80)
+        self.httpServ = httplib.HTTPConnection("dict.qq.com", 80, timeout=10)
         self.httpServ.connect()
         pass
     
