@@ -17,9 +17,9 @@
 
         <tbody>
         {% for word in newWords %}
-        <tr>
+        <tr class="wordElement">
             <td> {{ word.id }} </td>
-            <td> {{ word.name }} </td>
+            <td><span class="wordName"> {{ word.name }}</span></td>
             <td> {{ word.meaning }} </td>
         </tr>
         {% endfor %}
