@@ -229,10 +229,22 @@ class WordsPage(AuthenticatedPage):
 
 class RemoveWordAction(AuthenticatedPage):
     @requireLogin
-    def get(self):
+    def post(self):
         uselessWords = seperator.getWordList(self.request.get("term"))
         profile = Profile.getProfileOfUser(self.user)
         learntWords = set(profile.wordlist) - set(uselessWords)
+        profile.wordlist = list(learntWords)
+        profile.put()
+        response = {"status": "successed"}
+        self.response.out.write(json.dumps(response))
+        pass
+
+class AddWordAction(AuthenticatedPage):
+    @requireLogin
+    def post(self):
+        uselessWords = seperator.getWordList(self.request.get("term"))
+        profile = Profile.getProfileOfUser(self.user)
+        learntWords = set(profile.wordlist) + set(uselessWords)
         profile.wordlist = list(learntWords)
         profile.put()
         response = {"status": "successed"}
@@ -254,7 +266,8 @@ application = webapp.WSGIApplication(
 				      ('/new', NewArticlePage),
 				      ('/words', WordsPage),
 				      ('/articles', ArticlesPage),
-                      ('/remove/word', RemoveWordAction)],
+                      ('/remove/word', RemoveWordAction),
+                      ('/add/word', AddWordAction)],
                      debug=True)
 translator = Translator()
 seperator = Seperator()
