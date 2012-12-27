@@ -236,6 +236,8 @@ class RemoveWordAction(AuthenticatedPage):
         profile.wordlist = list(learntWords)
         profile.put()
         response = {"status": "successed"}
+
+        self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(response))
         pass
 
@@ -248,6 +250,7 @@ class AddWordAction(AuthenticatedPage):
         profile.wordlist = list(learntWords)
         profile.put()
         response = {"status": "successed"}
+        self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(response))
         pass
 
@@ -257,6 +260,7 @@ class CountWordAction(AuthenticatedPage):
         profile = Profile.getProfileOfUser(self.user)
         count = len(profile.wordlist)
         response = {"count": repr(count)}
+        self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(response))
         pass
         
