@@ -46,11 +46,9 @@ class IfoFileReader(object):
             value = value.strip()
             # check version info, raise an IfoFileException if error encounted
             if key != "version":
-                raise IfoFileException("Version info expected in the second line
-of {!r:s}!".format(filename))
+                raise IfoFileException("Version info expected in the second line of {!r:s}!".format(filename))
             if value != "2.4.2" and value != "3.0.0":
-                raise IfoFileException("Version expected to be either 2.4.2 or
-3.0.0, but {!r:s} read!".format(value))
+                raise IfoFileException("Version expected to be either 2.4.2 or 3.0.0, but {!r:s} read!".format(value))
             self._ifo[key] = value
             # read in other infomation in the file
             for line in ifo_file:
@@ -111,8 +109,7 @@ list of integers pointing to
                 if isinstance(self._word_idx[word_str], types.ListType):
                     self._word_idx[word_str].append(len(self._index_idx)-1)
                 else:
-                    self._word_idx[word_str] = [self._word_idx[word_str],
-len(self._index_idx)-1]
+                    self._word_idx[word_str] = [self._word_idx[word_str], len(self._index_idx)-1]
             else:
                 self._word_idx[word_str] = len(self._index_idx)-1
         del self._content
@@ -137,17 +134,14 @@ len(self._index_idx)-1]
         word_str = self._content[self._offset: end]
         self._offset = end+1
         if self._index_offset_bits == 64:
-            word_data_offset, = struct.unpack("!I",
-self._content[self._offset:self._offset+8])
+            word_data_offset, = struct.unpack("!I", self._content[self._offset:self._offset+8])
             self._offset += 8
         elif self._index_offset_bits == 32:
-            word_data_offset, = struct.unpack("!I",
-self._content[self._offset:self._offset+4])
+            word_data_offset, = struct.unpack("!I", self._content[self._offset:self._offset+4])
             self._offset += 4
         else:
             raise ValueError
-        word_data_size, = struct.unpack("!I",
-self._content[self._offset:self._offset+4])
+        word_data_size, = struct.unpack("!I", self._content[self._offset:self._offset+4])
         self._offset += 4
         self._index += 1
         return (word_str, word_data_offset, word_data_size, self._index)
@@ -163,8 +157,7 @@ index.
         A tuple in form of (word_str, word_data_offset, word_data_size)
         """
         if number >= len(self._index_idx):
-            raise IndexError("Index out of range! Acessing the {:d} index but
-totally {:d}".format(number, len(self._index_idx)))
+            raise IndexError("Index out of range! Acessing the {:d} index but totally {:d}".format(number, len(self._index_idx)))
         return self._index_idx[number]
 
 
@@ -218,8 +211,7 @@ a integer or
                 if isinstance(self._syn[synonym_word], types.ListType):
                     self._syn[synonym_word].append(original_word_index)
                 else:
-                    self._syn[synonym_word] = [self._syn[synonym_word],
-original_word_index]
+                    self._syn[synonym_word] = [self._syn[synonym_word], original_word_index]
             else:
                 self._syn[synonym_word] = original_word_index
 
@@ -324,15 +316,12 @@ class DictFileReader(object):
         for k in range(0, len(sametypesequence)):
             if sametypesequence[k] in "mlgtxykwhnr":
                 if k == len(sametypesequence)-1:
-                    result[sametypesequence[k]] =
-self._get_entry_field_size(size - (self._offset - start_offset))
+                    result[sametypesequence[k]] = self._get_entry_field_size(size - (self._offset - start_offset))
                 else:
-                    result[sametypesequence[k]] =
-self._get_entry_field_null_trail()
+                    result[sametypesequence[k]] = self._get_entry_field_null_trail()
             elif sametypesequence[k] in "WP":
                 if k == len(sametypesequence)-1:
-                    result[sametypesequence[k]] =
-self._get_entry_field_size(size - (self._offset - start_offset))
+                    result[sametypesequence[k]] = self._get_entry_field_size(size - (self._offset - start_offset))
                 else:
                     result[sametypesequence[k]] = self._get_entry_field_size()
         return result
@@ -345,8 +334,7 @@ self._get_entry_field_size(size - (self._offset - start_offset))
         
     def _get_entry_field_size(self, size = None):
         if size == None:
-            size = struct.unpack("!I",
-self._dict_file[self._offset:self._offset+4])
+            size = struct.unpack("!I", self._dict_file[self._offset:self._offset+4])
             self._offset += 4
         result = self._dict_file[self._offset:self._offset+size]
         self._offset += size

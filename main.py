@@ -6,6 +6,7 @@ import wsgiref.handlers
 import re
 import httplib
 import json
+from extension.stardict import IfoFileReader, IdxFileReader, DictFileReader
 
 from google.appengine.ext.webapp import template
 from google.appengine.ext import db
