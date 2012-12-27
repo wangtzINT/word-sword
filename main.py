@@ -33,6 +33,9 @@ class Translator(object):
         # which force me to use F2 frontend instance
         # need to find a way to reduce its usage
         # !AND! speed up the lauch time!
+        
+        # TODO: this reader is not thread-safe, need to create
+        # multiple instances, one for each thread
         self.dict_reader = DictFileReader(self.dict_file, 
                                             self.ifo_reader, 
                                             self.idx_reader, 
