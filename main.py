@@ -193,7 +193,7 @@ class NewArticlePage(AuthenticatedPage):
 
         content = self.request.get("content")
         # maight consider seperator in unicode plus - issue
-        words = re.split(r"[ .\"\'\n\t:;,?!~|()\[\]#+=%\\/><]+", content)
+        words = re.split(r"[ .\"\'\n\t:;,?!~|()\[\]#+=%\\/><0-9]+", content)
         words = filter(lambda x: len(x)>1, words)
         # an article related to map performance: (str.lower bad for unicode)
         # http://stackoverflow.com/questions/1247486/python-list-comprehension-vs-map
